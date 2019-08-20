@@ -1,0 +1,238 @@
+from random import shuffle
+import os
+import time
+
+# define the card ranks and suits
+ranks = [_ for _ in range(2, 11)] + ['Jack', 'Queen', 'King', 'Ace']
+suits = ['Spades', 'Clubs', 'Diamonds', 'Hearts']
+
+# get a deck of cards and randomly shuffle
+def get_deck():
+    return [[rank,suit] for rank in ranks for suit in suits]
+
+deck = get_deck()
+shuffle(deck)
+
+
+def clear():
+    if os.name == 'nt':
+        os.system('CLS')
+    if os.name == 'posix':
+        os.system('clear')
+
+
+def card_value(card):
+    rank = card[0]
+    if rank in ranks [0:-4]:
+        return int(rank)
+    elif rank == 'Ace':
+        return 11
+    else:
+        return 10
+
+
+def hand_value(hand):
+    score = sum(card_value(card) for card in hand)
+    num_aces = len([_ for _ in hand if _[0] is 'Ace'])
+    while num_aces > 0:
+        if score > 21 and 'Ace' in ranks:
+            score -= 10
+            num_aces -= 1
+        else:
+            break
+    return score
+
+
+def bust(player_hand):
+    if hand_value(player_hand) > 21:
+        print("You went bust! You lose!")
+        play_again()
+    elif hand_value(player_hand) == 21:
+        print('You have 21! Dealers turn')
+        pass
+    else:
+        pass
+
+
+def hit(hand):
+    new_player_card = deck.pop()
+    hand.append(new_player_card)
+
+
+def card_display(hand):
+    lines = [[] for i in range(11)]
+    for card in hand:
+        if card[0] == 'Jack' or card[0] == 'King' or card[0] == 'Queen' or card[0] == 'Ace':
+            label = card[0].rstrip('ackinguenc')
+            space = ' '
+        elif card[0] == 10:
+            label = '10'
+            space = ''
+        else:
+            label = card[0]
+            space = ' '
+        if card[1] == 'Spades':
+            symbol = '♠'
+        elif card[1] == 'Diamonds':
+            symbol = '♦'
+        elif card[1] == 'Hearts':
+            symbol = '♥'
+        else:
+            symbol = '♣'
+        lines[0].append('┌─────────┐')
+        lines[1].append(f'│ {label}{space}      │')
+        lines[2].append('│         │')
+        lines[3].append('│         │')
+        lines[4].append('│         │')
+        lines[5].append(f'│    {symbol}    │')
+        lines[6].append('│         │')
+        lines[7].append('│         │')
+        lines[8].append('│         │')
+        lines[9].append(f'│      {space}{label} │')
+        lines[10].append('└─────────┘')
+    for i in range(11):
+        for x in range(len(lines[i])):
+            if i == 9 and x == len(lines[i])-1:
+                print(lines[i][x], end='Hand')
+            else:
+                print(lines[i][x], end='')
+        print()
+
+
+def card_display_dealer(hand):
+    lines = [[] for i in range(11)]
+    if len(hand) == 2:
+        if hand[0][0] == 'Jack' or hand[0][0] == 'Queen' or hand[0][0] == 'King' or hand[0][0] == 'Ace':
+            label = hand[0][0].rstrip('ackuening')
+            space = ' '
+        elif hand[0][0] == 10:
+            label = '10'
+            space = ''
+        else:
+            label = hand[0][0]
+            space = ' '
+        if hand[0][1] == 'Spades':
+            symbol = '♠'
+        elif hand[0][1] == 'Hearts':
+            symbol = '♥'
+        elif hand[0][1] == 'Diamonds':
+            symbol = '♦'
+        elif hand[0][1] == 'Clubs':
+            symbol = '♣'
+        lines[0].append('┌─────────┐')
+        lines[1].append(f'│ {label}{space}      │')
+        lines[2].append('│         │')
+        lines[3].append('│         │')
+        lines[4].append('│         │')
+        lines[5].append(f'│    {symbol}    │')
+        lines[6].append('│         │')
+        lines[7].append('│         │')
+        lines[8].append('│         │')
+        lines[9].append(f'│      {space}{label} │')
+        lines[10].append('└─────────┘')
+        lines[0].append('┌─────────┐')
+        lines[1].append('│░░░░░░░░░│')
+        lines[2].append('│░░░░░░░░░│')
+        lines[3].append('│░░░░░░░░░│')
+        lines[4].append('│░░░░░░░░░│')
+        lines[5].append('│░░░░░░░░░│')
+        lines[6].append('│░░░░░░░░░│')
+        lines[7].append('│░░░░░░░░░│')
+        lines[8].append('│░░░░░░░░░│')
+        lines[9].append('│░░░░░░░░░│ ')
+        lines[10].append('└─────────┘')
+        for i in range(11):
+            for x in range(len(lines[i])):
+                print(lines[i][x], end='')
+            print()
+    elif len(hand) > 2:
+        card_display(hand)
+
+
+def play_again():
+    replay = input("Do you want to play again? (enter Yes or No) ")
+    print()
+    if replay == 'yes':
+        game()
+    elif replay == 'no':
+        clear()
+        exit()
+
+
+def blackjack(hand):
+    for m in range(len(hand)):
+        if hand[m][0] == 'Ace':
+            for n in range(len(hand)):
+                if hand[n][0] == 'King' or hand [n][0] == 'Queen' or hand [n][0] =='Jack':
+                    return True
+
+
+def game_state(dealer_hand, player_hand):
+    card_display_dealer(dealer_hand)
+    card_display(player_hand)
+    print(f"Your count: {hand_value(player_hand)}")
+    
+    
+def five_check(hand):
+    if len(hand) >= 5:
+        print("You got a 5 card trick! You Win!")
+
+
+def game():
+    clear()
+    print("Welcome to Blackjack!")
+    deck.pop()
+    player_hand = [deck.pop(), deck.pop()]
+    dealer_hand = [deck.pop(), deck.pop()]
+    game_state(dealer_hand, player_hand)
+    if blackjack(dealer_hand):
+        print('Dealer has Blackjack! You Lose!')
+        play_again()
+    elif blackjack(player_hand):
+        print('You got Blackjack! You Win!')
+        play_again()
+    twist = int(input('Would you like to hit[1] or stand[0]? '))
+    print()
+    while twist:
+        clear()
+        hit(player_hand)
+        game_state(dealer_hand, player_hand)
+        bust(player_hand)
+        #five_check(player_hand)
+        twist = int(input('Hit[1] or Stand[0]?'))
+
+    clear()
+    game_state(dealer_hand, player_hand)
+    if hand_value(dealer_hand) > hand_value(player_hand):
+        print(f"You Lose! Dealer is closer to 21 with a total of {hand_value(dealer_hand)}!")
+        play_again()
+    elif hand_value(dealer_hand) == hand_value(player_hand):
+        print(f"It's a Tie! You both have {hand_value(dealer_hand)}")
+        play_again()
+    else:
+        while hand_value(dealer_hand) < 17:
+            time.sleep(2)
+            hit(dealer_hand)
+            clear()
+            game_state(dealer_hand, player_hand)
+            
+            if hand_value(dealer_hand) > 21:
+                print("Dealer went bust! You Win!")
+                play_again()
+                
+        if hand_value(dealer_hand) > hand_value(player_hand):
+            print(f"You Lose! Dealer is closer to 21 with a total of {hand_value(dealer_hand)}")
+            play_again()
+        elif hand_value(dealer_hand) == hand_value(player_hand):
+            print(f"It's a Tie! You both have {hand_value(dealer_hand)}")
+            play_again()
+        elif hand_value(player_hand) > hand_value(dealer_hand):
+            print(f"You have {hand_value(player_hand)} and the Dealer has {hand_value(dealer_hand)}. You are closer to 21! You Win!")
+            play_again()
+        elif hand_value(dealer_hand) == 21:
+            print("Dealer got 21! You Lose!")
+            play_again()
+
+
+if __name__ == '__main__':
+    game()
