@@ -2,16 +2,21 @@ from random import shuffle
 import os
 import time
 
-# define the card ranks and suits
-ranks = [_ for _ in range(2, 11)] + ['Jack', 'Queen', 'King', 'Ace']
+
+ranks = [_ for _ in range(2, 11)] +  ['Jack', 'Queen','King', 'Ace']
 suits = ['Spades', 'Clubs', 'Diamonds', 'Hearts']
 
-# get a deck of cards and randomly shuffle
+
 def get_deck():
     return [[rank,suit] for rank in ranks for suit in suits]
 
 deck = get_deck()
 shuffle(deck)
+
+
+def reshuffle():
+    deck = get_deck()
+    shuffle(deck)
 
 
 def clear():
@@ -29,6 +34,27 @@ def card_value(card):
         return 11
     else:
         return 10
+
+
+def bet_value():
+    while True:
+        try:
+            total = int(input("How much money have you brought to the table? £"))
+        except ValueError:
+            print("Sorry must be an integer...")
+        else:
+            break
+    while True:
+        try:
+            bet = int(input("How much are you going to bet? £"))
+        except ValueError:
+            print("Sorry must be an integer...")
+        else:
+            if bet > total:
+                print(f"Sorry You only have {total}. Your bet must not exceed this.")
+            elif bet == 0:
+                print("Sorry, you must bet at least £1")
+                break
 
 
 def hand_value(hand):
@@ -99,6 +125,9 @@ def card_display(hand):
         print()
 
 
+
+
+
 def card_display_dealer(hand):
     lines = [[] for i in range(11)]
     if len(hand) == 2:
@@ -152,9 +181,49 @@ def card_display_dealer(hand):
 def play_again():
     replay = input("Do you want to play again? (enter Yes or No) ")
     print()
-    if replay == 'yes':
+    if replay.lower()[0] == 'y':
+        clear()
+        print("reshuffling.")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling..")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling...")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling..")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling.")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling.")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling..")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling...")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling..")
+        time.sleep(0.5)
+        clear()
+        print("reshuffling.")
+        time.sleep(0.5)
+        clear()
+        reshuffle()
         game()
-    elif replay == 'no':
+    elif replay.lower()[0] =='o':
+        clear()
+        reshuffle()
+        time.sleep(1)
+        game()
+    elif replay.lower()[0] == 'n':
         clear()
         exit()
 
@@ -171,11 +240,12 @@ def game_state(dealer_hand, player_hand):
     card_display_dealer(dealer_hand)
     card_display(player_hand)
     print(f"Your count: {hand_value(player_hand)}")
-    
-    
+
+
 def five_check(hand):
     if len(hand) >= 5:
-        print("You got a 5 card trick! You Win!")
+        print("5 card trick!")
+        play_again()
 
 
 def game():
@@ -185,11 +255,14 @@ def game():
     player_hand = [deck.pop(), deck.pop()]
     dealer_hand = [deck.pop(), deck.pop()]
     game_state(dealer_hand, player_hand)
+    bet_value()
     if blackjack(dealer_hand):
         print('Dealer has Blackjack! You Lose!')
+
         play_again()
     elif blackjack(player_hand):
         print('You got Blackjack! You Win!')
+
         play_again()
     twist = int(input('Would you like to hit[1] or stand[0]? '))
     print()
@@ -198,39 +271,46 @@ def game():
         hit(player_hand)
         game_state(dealer_hand, player_hand)
         bust(player_hand)
-        #five_check(player_hand)
+        five_check(player_hand)
         twist = int(input('Hit[1] or Stand[0]?'))
 
     clear()
     game_state(dealer_hand, player_hand)
     if hand_value(dealer_hand) > hand_value(player_hand):
         print(f"You Lose! Dealer is closer to 21 with a total of {hand_value(dealer_hand)}!")
+
         play_again()
     elif hand_value(dealer_hand) == hand_value(player_hand):
-        print(f"It's a Tie! You both have {hand_value(dealer_hand)}")
+        print(f"Push! You both have {hand_value(dealer_hand)}")
         play_again()
     else:
         while hand_value(dealer_hand) < 17:
-            time.sleep(2)
+            time.sleep(1)
             hit(dealer_hand)
+            five_check(dealer_hand)
+            game_state(dealer_hand, player_hand)
             clear()
             game_state(dealer_hand, player_hand)
-            
+
             if hand_value(dealer_hand) > 21:
                 print("Dealer went bust! You Win!")
+
                 play_again()
-                
+
         if hand_value(dealer_hand) > hand_value(player_hand):
             print(f"You Lose! Dealer is closer to 21 with a total of {hand_value(dealer_hand)}")
+
             play_again()
         elif hand_value(dealer_hand) == hand_value(player_hand):
-            print(f"It's a Tie! You both have {hand_value(dealer_hand)}")
+            print(f"Push! You both have {hand_value(dealer_hand)}.")
             play_again()
         elif hand_value(player_hand) > hand_value(dealer_hand):
             print(f"You have {hand_value(player_hand)} and the Dealer has {hand_value(dealer_hand)}. You are closer to 21! You Win!")
+
             play_again()
         elif hand_value(dealer_hand) == 21:
             print("Dealer got 21! You Lose!")
+
             play_again()
 
 
